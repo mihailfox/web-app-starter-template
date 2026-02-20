@@ -1,0 +1,35 @@
+name: Lighthouse (Manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_url:
+        description: "URL to audit"
+        required: true
+        default: "https://example.com"
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+
+      - name: Install Lighthouse
+        run: npm install -g lighthouse
+
+      - name: Run Lighthouse
+        run: |
+          lighthouse "${{ github.event.inputs.target_url }}" \
+            --output=html \
+            --output=json \
+            --output-path=./lighthouse-report \
+            --chrome-flags="--no-sandbox --headless=new"
+
+      - name: Upload report
+        uses: actions/upload-artifact@v6
+        with:
+          name: lighthouse-report
+          path: lighthouse-report*

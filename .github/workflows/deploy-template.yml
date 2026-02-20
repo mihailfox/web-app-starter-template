@@ -1,0 +1,16 @@
+name: Deploy Template Stub
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Deployment placeholder
+        run: |
+          echo "Replace this workflow with your deployment provider steps."
+          echo "Do not commit provider-specific credentials or host assumptions into the template."

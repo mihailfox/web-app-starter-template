@@ -1,0 +1,72 @@
+{
+  "id": "cli-tools",
+  "name": "CLI tools",
+  "version": "1.0.0",
+  "description": "Installs common CLI tooling (ripgrep, fd, bat, lsd, git-delta, helix, jq, yq, gojq, fzf, shellcheck, shfmt).",
+  "options": {
+    "fzf": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install fzf fuzzy finder from GitHub releases."
+    },
+    "ripgrep": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install ripgrep."
+    },
+    "fd": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install fd (a simple, fast alternative to find)."
+    },
+    "bat": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install bat (a cat clone with wings)."
+    },
+    "lsd": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install lsd (an ls alternative)."
+    },
+    "delta": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install git-delta."
+    },
+    "helix": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install the Helix editor."
+    },
+    "jq": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install jq from GitHub release."
+    },
+    "yq": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install yq from the GitHub release."
+    },
+    "gojq": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install gojq from the GitHub release."
+    },
+    "shellcheck": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install shellcheck from the GitHub release."
+    },
+    "shfmt": {
+      "type": "boolean",
+      "default": true,
+      "description": "Install shfmt from the GitHub release."
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils:2",
+    "ghcr.io/devcontainers/features/github-cli:1"
+  ]
+}

@@ -1,0 +1,50 @@
+services:
+  workspace:
+    image: devcontainer:24-bookworm-typescript-playwright
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    command: sleep infinity
+    init: true
+    network_mode: host
+    volumes:
+      # - /var/run/docker.sock:/var/run/docker.sock
+      - ${WORKSPACE_SOURCE:?}:${WORKSPACE_TARGET:?}
+    environment:
+      NODE_ENV: development
+      PLAYWRIGHT_BROWSERS_PATH: /home/node/.cache/ms-playwright
+      VERDACCIO_URL: http://localhost:4873
+      YARN_REGISTRY: ${VERDACCIO_URL}
+    env_file:
+      - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  verdaccio:
+    image: verdaccio/verdaccio:6.2.5
+    # profiles:
+    #   - verdaccio
+    # command: sleep infinity
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - 'verdaccio-storage:/verdaccio/storage'
+      - type: bind
+        source: ${WORKSPACE_SOURCE}/.devcontainer/verdaccio/config.yaml
+        target: /verdaccio/conf/config.yaml
+        read_only: true
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'wget --quiet --tries=1 --spider --timeout=2 http://127.0.0.1:4873/-/ping || exit 1'
+      interval: 30s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+
+volumes:
+  devcontainer-volume:
+    name: ${WORKSPACE_CONTAINER_VOLUME_SOURCE:-not-used-in-bind-mount}
+    external: ${WORKSPACE_IS_CONTAINER_VOLUME:?}
+  verdaccio-storage:
+    driver: local
