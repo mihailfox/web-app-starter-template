@@ -10,11 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Template maintenance guide (`docs/TEMPLATE_MAINTENANCE.md`)
 - Example configuration file with placeholders (`src/config/example.ts`)
+- Yarn 4 caching documentation in template maintenance guide
 
 ### Changed
 - Updated template hygiene verification to use placeholder-focused patterns
 - Enhanced documentation for both template maintainers and downstream users
 - Improved `docs/TEMPLATE_CUSTOMIZATION.md` with hygiene verification step
+- Upgraded CI workflow to use `actions/cache@v5` for Yarn dependencies
+
+### Fixed
+- CI workflow Yarn version mismatch by enabling Corepack before cache operations
+- Cache detection now properly uses Yarn 4's cache directory
+- Removed built-in setup-node cache in favor of manual Yarn 4 caching
 
 ## [0.1.0] - 2026-02-20
 

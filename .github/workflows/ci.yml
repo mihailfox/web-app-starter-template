@@ -16,11 +16,28 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: yarn
-          cache-dependency-path: yarn.lock
 
+      # Caching strategy for Yarn 4 (Berry):
+      # 1. Enable Corepack first to ensure correct Yarn version
+      # 2. Dynamically detect cache directory (varies by Yarn version/config)
+      # 3. Use yarn.lock hash for cache key
+      # 4. Restore partial cache if yarn.lock changed
+      # Note: actions/cache@v5 requires Actions Runner 2.327.1+
       - name: Enable Corepack
         run: corepack enable
+
+      - name: Get Yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(corepack yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v5
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
       - name: Install dependencies
         run: yarn install --immutable

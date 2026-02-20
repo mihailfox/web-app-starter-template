@@ -236,6 +236,61 @@ All must pass before merge to `main`.
 - **Deploy Template Stub**: Placeholder for deployment
 - **Lighthouse**: Manual performance audits
 
+### Yarn 4 Caching in CI
+
+The CI workflow uses `actions/cache@v5` to cache Yarn dependencies for faster builds.
+
+**How it works:**
+1. Corepack enables Yarn 4 before any caching operations
+2. Cache directory is detected dynamically via `yarn config get cacheFolder`
+3. Cache key includes OS and yarn.lock hash for precise matching
+4. Partial caching via restore-keys speeds up builds when dependencies change
+
+**Cache performance:**
+- **Cache hit** (exact match): ~10-25 seconds install time
+- **Cache miss** (partial restore): ~20-40 seconds install time
+- **No cache** (first run): ~26-51 seconds install time
+
+**Benefits:**
+- 2-3x faster builds on cache hits
+- ~50% faster with partial cache (after dependency updates)
+- Automatic cache invalidation when yarn.lock changes
+
+**Important notes:**
+- `actions/cache@v5` requires GitHub Actions Runner **2.327.1+**
+- Self-hosted runners must be updated to this version or later
+- Cache is scoped to branch (main branch cache available to feature branches)
+- Repository can have up to 10GB of caches total
+
+**Troubleshooting:**
+
+If caching fails, check:
+1. **Runner version**: Must be `2.327.1+` for actions/cache@v5
+2. **Corepack enabled**: Must run before cache operations
+3. **yarn.lock committed**: Cache key depends on this file
+4. **Cache size**: Ensure total caches don't exceed 10GB limit
+
+**Manual cache management:**
+```bash
+# List all caches for repository
+gh cache list
+
+# Delete specific cache by ID
+gh cache delete <cache-id>
+
+# Clear all caches for a branch
+gh cache delete --all --branch <branch-name>
+
+# View cache usage
+gh api repos/:owner/:repo/actions/cache/usage
+```
+
+**Cache behavior:**
+- Old caches evicted when 10GB limit reached (LRU policy)
+- Caches not accessed in 7 days automatically deleted
+- Feature branches can restore from main branch cache
+- Cross-OS caching not enabled (Linux cache only on Linux runners)
+
 ---
 
 ## Common Maintenance Tasks
