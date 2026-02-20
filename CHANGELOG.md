@@ -8,15 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Playwright E2E testing** with comprehensive setup:
+  - `@playwright/test` dependency (v1.58.2)
+  - `playwright.config.ts` with auto-starting dev server
+  - Example E2E test suite in `tests/e2e/home.spec.ts`
+  - Testing guide in `tests/README.md` covering both unit and E2E tests
+  - TypeScript configuration for E2E tests (`tsconfig.e2e.json`)
+  - Six E2E scripts in `package.json`: `test:e2e`, `test:e2e:ui`, `test:e2e:debug`, `test:e2e:headed`, `test:e2e:report`, `test:e2e:codegen`
+  - CI integration: browser installation, E2E test step, artifact uploads
+  - Playwright artifacts in `.gitignore` (test-results, playwright-report, .cache)
+  - Comprehensive E2E testing section in `docs/TEMPLATE_MAINTENANCE.md`
 - Template maintenance guide (`docs/TEMPLATE_MAINTENANCE.md`)
 - Example configuration file with placeholders (`src/config/example.ts`)
 - Yarn 4 caching documentation in template maintenance guide
 
 ### Changed
+- Updated `README.md` to include Playwright in features list and scripts section
+- Updated `docs/TEMPLATE_CUSTOMIZATION.md` with testing guidance for unit and E2E tests
+- Updated `tsconfig.json` to reference `tsconfig.e2e.json` for project references
 - Updated template hygiene verification to use placeholder-focused patterns
 - Enhanced documentation for both template maintainers and downstream users
 - Improved `docs/TEMPLATE_CUSTOMIZATION.md` with hygiene verification step
 - Upgraded CI workflow to use `actions/cache@v5` for Yarn dependencies
+- CI workflow now includes E2E tests with Chromium-only configuration
 
 ### Fixed
 - CI workflow Yarn version mismatch by enabling Corepack before cache operations

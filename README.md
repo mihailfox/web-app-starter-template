@@ -6,6 +6,7 @@ A clean React + Vite + TypeScript starter template with:
 - Yarn-only workflow (Corepack + locked version)
 - Biome lint/format
 - Vitest + Testing Library
+- Playwright E2E testing
 - Optional Docker Compose helpers (Verdaccio, Supabase workflow helper)
 
 ---
@@ -75,6 +76,10 @@ yarn dev
 - `yarn build` - Build production output
 - `yarn preview` - Preview production build
 - `yarn test` - Run unit tests
+- `yarn test:e2e` - Run E2E tests (headless)
+- `yarn test:e2e:ui` - Run E2E tests in UI mode
+- `yarn test:e2e:debug` - Debug E2E tests
+- `yarn test:e2e:codegen` - Generate E2E tests
 - `yarn lint` - Run Biome checks
 - `yarn format` - Format with Biome
 - `yarn typecheck` - TypeScript no-emit check

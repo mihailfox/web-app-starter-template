@@ -50,7 +50,10 @@ Once hygiene check passes, proceed with the sections below.
 - Keep `package.json#packageManager` pinned to Yarn (`yarn@<version>`).
 - Run `bash scripts/setup.sh` after cloning to provision the exact Yarn version.
 - Run `yarn check`.
-- Expand tests beyond the starter smoke test.
+- Expand tests beyond the starter smoke test:
+  - Unit tests in `src/**/*.test.tsx` (Vitest + Testing Library)
+  - E2E tests in `tests/e2e/**/*.spec.ts` (Playwright)
+  - See `tests/README.md` for testing guide
 - Tune Biome rules for your team if needed.
 
 ## 5. CI/CD

@@ -221,8 +221,9 @@ The template's CI pipeline (`.github/workflows/ci.yml`) ensures quality:
 1. **TypeScript compilation**: `yarn typecheck`
 2. **Linting**: `yarn lint` (Biome)
 3. **Testing**: `yarn test` (Vitest)
-4. **Build**: `yarn build` (Vite)
-5. **Template hygiene**: `yarn template:verify`
+4. **E2E Testing**: `yarn test:e2e` (Playwright)
+5. **Build**: `yarn build` (Vite)
+6. **Template hygiene**: `yarn template:verify`
 
 All must pass before merge to `main`.
 
@@ -290,6 +291,166 @@ gh api repos/:owner/:repo/actions/cache/usage
 - Caches not accessed in 7 days automatically deleted
 - Feature branches can restore from main branch cache
 - Cross-OS caching not enabled (Linux cache only on Linux runners)
+
+---
+
+## E2E Testing with Playwright
+
+The template includes **Playwright** for end-to-end testing. This section covers how to maintain and extend E2E tests.
+
+### Architecture
+
+**Test location**: `tests/e2e/**/*.spec.ts`
+- Separate from unit tests (`src/**/*.test.tsx`)
+- Uses Playwright Test framework
+- Runs against dev server (auto-started by Playwright config)
+
+**Configuration**: `playwright.config.ts`
+- Single browser: Chromium (fast, easy to extend)
+- Auto-starts dev server on `http://localhost:5173`
+- Retries: 2 times in CI, 0 locally
+- Artifacts: Screenshots/videos on failure, traces in CI
+- Reporters: HTML (local), GitHub Actions + HTML (CI)
+
+**TypeScript config**: `tsconfig.e2e.json`
+- Separate from app and node configs
+- Playwright types included
+- Referenced in root `tsconfig.json`
+
+### Available Scripts
+
+```bash
+yarn test:e2e           # Run E2E tests (headless)
+yarn test:e2e:ui        # Run with Playwright UI (recommended for development)
+yarn test:e2e:debug     # Debug mode with Playwright Inspector
+yarn test:e2e:headed    # Run in headed mode (see browser)
+yarn test:e2e:report    # Open last HTML report
+yarn test:e2e:codegen   # Generate tests with Codegen tool
+```
+
+### Writing E2E Tests
+
+**Example test structure**:
+```typescript
+// tests/e2e/feature.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Feature Name', () => {
+  test('should do something', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading')).toHaveText('Expected Text');
+  });
+});
+```
+
+**Best practices**:
+- Use semantic selectors: `getByRole`, `getByText`, `getByLabel` (avoid CSS selectors)
+- One test file per page/feature
+- Use `test.describe()` to group related tests
+- Keep tests independent (don't rely on test execution order)
+- Use Page Object Model for complex workflows
+
+### CI Integration
+
+E2E tests run automatically in CI (`.github/workflows/ci.yml`):
+
+**Steps:**
+1. **Install Playwright browsers**: `yarn playwright install --with-deps chromium`
+2. **Run E2E tests**: `yarn test:e2e` (headless, 2 retries)
+3. **Upload artifacts**: 
+   - HTML report (30-day retention)
+   - Traces (7-day retention, failures only)
+
+**Artifacts access**:
+- Navigate to failed workflow run
+- Click "Artifacts" section
+- Download `playwright-report` or `playwright-traces`
+- Open traces with `yarn test:e2e:report` or [trace.playwright.dev](https://trace.playwright.dev)
+
+### Adding More Browsers
+
+To test on multiple browsers, edit `playwright.config.ts`:
+
+```typescript
+export default defineConfig({
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },    // Uncomment
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },      // Uncomment
+  ],
+});
+```
+
+**CI update required**:
+```yaml
+# .github/workflows/ci.yml
+- name: Install Playwright browsers
+  run: yarn playwright install --with-deps  # Remove 'chromium' to install all
+```
+
+### Debugging Failed Tests
+
+**Locally**:
+```bash
+# Run with UI mode (best for debugging)
+yarn test:e2e:ui
+
+# Run with inspector
+yarn test:e2e:debug
+
+# Run in headed mode
+yarn test:e2e:headed
+```
+
+**In CI**:
+1. Download `playwright-traces` artifact from failed run
+2. Unzip and view with: `yarn test:e2e:report`
+3. Or upload to [trace.playwright.dev](https://trace.playwright.dev)
+
+### Performance Considerations
+
+**Test speed optimizations**:
+- Chromium-only by default (~2x faster than multi-browser)
+- Parallel execution enabled (uses all CPU cores)
+- Retries only in CI (faster local feedback)
+- Screenshots/videos only on failure (saves disk space)
+
+**Typical run times**:
+- 3 example tests: ~5-10 seconds (local, headless)
+- Same tests in CI: ~15-25 seconds (includes browser install, retries)
+
+### Browser Installation
+
+**Devcontainer**:
+- Playwright browsers auto-install on first container build
+- Triggered by `.devcontainer/scripts/post-create.sh`
+- Uses `PLAYWRIGHT_BROWSERS_PATH` environment variable
+- No manual intervention needed
+
+**Manual installation** (if needed):
+```bash
+yarn playwright install --with-deps chromium
+```
+
+### Troubleshooting
+
+**Issue**: Tests fail with "Browser not found"
+**Fix**:
+```bash
+yarn playwright install --with-deps chromium
+```
+
+**Issue**: Dev server doesn't start in tests
+**Fix**:
+- Check port 5173 is available
+- Verify `yarn dev` works manually
+- Check `playwright.config.ts` webServer config
+
+**Issue**: Flaky tests (intermittent failures)
+**Fix**:
+- Use `waitFor` assertions: `await expect(locator).toBeVisible()`
+- Avoid hard waits: `page.waitForTimeout()` (use auto-waiting instead)
+- Increase timeout for slow operations: `{ timeout: 10000 }`
 
 ---
 

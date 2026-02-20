@@ -107,3 +107,8 @@ supabase/.temp
 # Devcontainer generated files
 .devcontainer/.env
 .devcontainer/logs/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
